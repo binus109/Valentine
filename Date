@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valentine?</title>
+  <style>
+    :root { --bg: #fff5f7; --text: #1f2937; }
+    body{
+      margin:0; height:100vh; display:grid; place-items:center;
+      background: radial-gradient(circle at top, #ffe4e6, var(--bg));
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+    }
+    .card{
+      width:min(520px, 92vw);
+      background:white; border-radius:24px;
+      padding:34px 26px;
+      box-shadow: 0 20px 55px rgba(0,0,0,.12);
+      text-align:center;
+      position: relative;
+      overflow: hidden;
+    }
+    h1{ margin:0 0 18px; font-size: clamp(28px, 4vw, 40px); }
+    p{ margin:0 0 22px; opacity:.8; }
+    .btn-row{
+      display:flex; justify-content:center; gap:14px; flex-wrap:wrap;
+      padding-top:8px;
+    }
+    button{
+      border:0;
+      font-size:18px;
+      padding:12px 22px;
+      border-radius:999px;
+      cursor:pointer;
+      transition: transform .08s ease;
+      user-select:none;
+      touch-action: manipulation;
+    }
+    #yes{
+      background: #22c55e;
+      color: white;
+      box-shadow: 0 10px 24px rgba(34,197,94,.25);
+    }
+    #yes:active{ transform: scale(.98); }
+
+    /* The "No" button will become absolutely positioned when it starts dodging */
+    #no{
+      background: #ef4444;
+      color: white;
+      box-shadow: 0 10px 24px rgba(239,68,68,.22);
+      position: relative;
+    }
+
+    /* little hearts */
+    .heart{
+      position:absolute; inset:auto;
+      width:14px; height:14px;
+      background:#fb7185;
+      transform: rotate(45deg);
+      opacity:.35;
+    }
+    .heart::before,.heart::after{
+      content:"";
+      position:absolute;
+      width:14px; height:14px;
+      border-radius:50%;
+      background:#fb7185;
+    }
+    .heart::before{ left:-7px; top:0; }
+    .heart::after{ top:-7px; left:0; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="heart" style="left:18px; top:18px;"></div>
+    <div class="heart" style="right:26px; top:22px; transform:rotate(45deg) scale(1.2);"></div>
+    <div class="heart" style="left:42px; bottom:26px; transform:rotate(45deg) scale(1.1);"></div>
+    <div class="heart" style="right:42px; bottom:34px; transform:rotate(45deg) scale(.9);"></div>
+
+    <h1>Will you be my Valentine? 💘</h1>
+    <p>(Choose wisely 😄)</p>
+
+    <div class="btn-row">
+      <button id="yes">Yes</button>
+      <button id="no">No</button>
+    </div>
+  </div>
+
+  <script>
+    const card = document.getElementById('card');
+    const noBtn = document.getElementById('no');
+    const yesBtn = document.getElementById('yes');
+
+    // Go to the "yay" page on Yes
+    yesBtn.addEventListener('click', () => {
+      window.location.href = 'yay.html';
+    });
+
+    // Turn "No" into a dodger
+    let dodging = false;
+
+    function moveNoButton() {
+      const cardRect = card.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      // Make sure the button is absolutely positioned within the card
+      if (!dodging) {
+        dodging = true;
+        noBtn.style.position = 'absolute';
+
+        // Set starting position based on current location
+        const startLeft = btnRect.left - cardRect.left;
+        const startTop  = btnRect.top  - cardRect.top;
+        noBtn.style.left = `${startLeft}px`;
+        noBtn.style.top  = `${startTop}px`;
+      }
+
+      const padding = 14;
+      const maxLeft = cardRect.width  - btnRect.width  - padding;
+      const maxTop  = cardRect.height - btnRect.height - padding;
+
+      const newLeft = Math.max(padding, Math.random() * maxLeft);
+      const newTop  = Math.max(padding, Math.random() * maxTop);
+
+      noBtn.style.left = `${newLeft}px`;
+      noBtn.style.top  = `${newTop}px`;
+    }
+
+    // Trigger move when cursor gets close (desktop)
+    document.addEventListener('mousemove', (e) => {
+      const btnRect = noBtn.getBoundingClientRect();
+      const dx = e.clientX - (btnRect.left + btnRect.width / 2);
+      const dy = e.clientY - (btnRect.top + btnRect.height / 2);
+      const distance = Math.hypot(dx, dy);
+
+      // "Close" threshold — tweak if you want it more/less annoying
+      if (distance < 90) moveNoButton();
+    });
+
+    // Mobile-friendly: move when she tries to tap it
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    }, { passive: false });
+
+    // Also move if she somehow hovers directly on it
+    noBtn.addEventListener('mouseenter', moveNoButton);
+  </script>
+</body>
+</html>
